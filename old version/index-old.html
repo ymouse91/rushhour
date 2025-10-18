@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Rush Hour PWA</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0d6efd">
+  <style>
+    :root{
+      --cell: 72px;
+      --gap: 6px;
+      --bg: #f6f7fb;
+      --ink:#111;
+      --accent:#0d6efd;
+      --red:#e53935;
+      --truck:#7e57c2;
+      --car:#43a047;
+      --grid:#dfe3ee;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--ink);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      display:grid; grid-template-rows:auto 1fr auto; gap:10px; padding:16px;
+    }
+    header,footer{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+    header h1{font-size:1.1rem; margin:0 8px 0 0}
+    .boardWrap{display:grid; place-items:center}
+    .board{
+      position:relative;
+      display:grid;
+      grid-template-columns: repeat(6, var(--cell));
+      grid-template-rows: repeat(6, var(--cell));
+      gap: var(--gap);
+      padding: var(--gap);
+      background: linear-gradient(145deg,#e9edf5,#ffffff);
+      border: 6px solid #9aa7bd;
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+      user-select:none;
+      touch-action: none;
+    }
+    .cell{
+      width: var(--cell); height: var(--cell);
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: inset 0 0 0 2px var(--grid);
+      position:relative;
+    }
+    /* uloskäynti oikealla keskellä (rivi 3, reunaviilto) */
+    .exit{
+      position:absolute; top: calc(var(--gap) + 2*var(--cell) + 2*var(--gap));
+      right: -10px; width: 16px; height: calc(var(--cell) + var(--gap));
+      background: repeating-linear-gradient(90deg,#fff 0 6px,#eee 6px 12px);
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px var(--grid);
+    }
+    .veh{
+      position:absolute; border-radius: 10px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.16);
+      display:grid; place-items:center;
+      font-weight:700; color:#fff;
+      outline: 3px solid transparent;
+      transition: transform .12s;
+    }
+    .veh.red{ background: var(--red); }
+    .veh.car{ background: var(--car); }
+    .veh.truck{ background: var(--truck); }
+    .veh.sel{ outline-color: #000; }
+    .hud{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .hud .pill{
+      background:#fff; border:1px solid #d7deea; padding:6px 10px; border-radius:999px;
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    button,select{
+      font: inherit; padding:.55rem .8rem; border-radius:10px; border:1px solid #cfd8ea; background:#fff; cursor:pointer;
+    }
+    button.primary{background: var(--accent); color:#fff; border-color: var(--accent)}
+    button.ghost{background:transparent}
+/* Aseta koko keys-lohko pelilaudan alle ja keskelle */
+.keys {
+  display: flex;
+  justify-content: center;   /* vaakakeskitys */
+  align-items: center;
+  margin-top: 16px;          /* väli laudan ja nappien väliin */
+  width: 100%;
+}
+
+/* Pidä nuolinappien oma ruudukko entisellään */
+.keys .arrows {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(3, 40px);
+  gap: 6px;
+}
+
+/* Nappien ulkoasu */
+.keys .arrows button {
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  width: 40px;
+  height: 40px;
+}
+
+/* Tyhjät napit: vie paikka mutta piilota */
+.keys .arrows button.blank {
+  visibility: hidden;
+}
+
+    .small{font-size:.9rem; padding:.4rem .6rem}
+    .note{opacity:.75}
+    @media (max-width:900px){
+      :root{ --cell: 56px; }
+    }
+    @media (max-width:600px){
+      :root{ --cell: 48px; }
+    }
+	
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Rush Hour</h1>
+    <div class="hud">
+      <label class="pill">Taso
+        <select id="level">
+          <option value="beginner">Helppo</option>
+          <option value="intermediate">Tavallinen</option>
+          <option value="advanced">Haastava</option>
+          <option value="expert">Vaikea</option>
+        </select>
+      </label>
+      <span class="pill">Siirrot: <b id="moves">0</b></span>
+      <span class="pill">Minimi: <b id="min">–</b></span>
+      <button id="new" class="primary">Uusi pulma</button>
+      <button id="reset">Nollaa</button>
+    </div>
+
+  </header>
+
+  <div class="boardWrap">
+    <div id="board" class="board" aria-label="6x6-ruudukko"></div>
+  </div>
+    <div class="keys">
+      <div class="arrows" aria-label="Nuolinäppäimet">
+        <button class="blank" tabindex="-1"></button>
+        <button id="up">↑</button>
+        <button class="blank" tabindex="-1"></button>
+        <button id="left">←</button>
+        <button class="blank" tabindex="-1"></button>
+        <button id="right">→</button>
+        <button class="blank" tabindex="-1"></button>
+        <button id="down">↓</button>
+        <button class="blank" tabindex="-1"></button>
+      </div>
+    </div>
+  <footer class="note">
+    Tavoite: liu’uta punainen auto (vaakasuora) ulos oikeasta reunasta. Valitse auto napauttamalla; siirrä nuolinäppäimillä.
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
