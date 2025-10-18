@@ -142,7 +142,7 @@ select{
 /* ============== VEHICLES ============== */
 .veh{
   position: absolute;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0,0,0,.4);
   display: grid; place-items: center;
   font-weight: 700; font-size: 1rem; color: #fff;
@@ -150,6 +150,10 @@ select{
   transition: transform .08s cubic-bezier(.2,.8,.2,1), box-shadow .2s;
   cursor: grab; touch-action: manipulation;
   -webkit-user-select: none; user-select: none;
+  padding: 0;
+  margin: 0;
+  border: none;
+  box-sizing: border-box;
 }
 .veh:active{ cursor: grabbing; }
 .veh.sel{ outline-color:#60a5fa; box-shadow: 0 0 24px rgba(96,165,250,.6), 0 8px 24px rgba(0,0,0,.4); }
@@ -545,7 +549,7 @@ onmessage = (e)=>{
       const root = getComputedStyle(document.documentElement);
       const cell = parseFloat(root.getPropertyValue('--cell')) || 68;
       const gap = parseFloat(root.getPropertyValue('--gap')) || 8;
-      const pad = 12;
+      const pad = 8;
 
       for (let i = 0; i < vs.length; i++) {
         const v = vs[i];
@@ -555,6 +559,7 @@ onmessage = (e)=>{
 
         const w = (v.dir === 'H' ? v.len : 1) * cell + ((v.dir === 'H' ? v.len - 1 : 0) * gap);
         const h = (v.dir === 'V' ? v.len : 1) * cell + ((v.dir === 'V' ? v.len - 1 : 0) * gap);
+
         const x = pad + v.c * (cell + gap);
         const y = pad + v.r * (cell + gap);
 
