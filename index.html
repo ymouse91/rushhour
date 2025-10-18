@@ -253,7 +253,7 @@ footer{
 <label class="pill">Taso
         <select id="level">
 <option value="beginner">Helppo</option>
-<option value="intermediate">Tavallinen</option>
+<option value="intermediate" selected>Tavallinen</option>
 <option value="advanced">Haastava</option>
 <option value="expert">Vaikea</option>
 </select>
@@ -283,7 +283,7 @@ footer{
 <button class="blank"></button>
 </div>
 </div>
-<footer>Tavoite: liu'uta punainen auto ulos oikeasta reunasta. Valitse auto napauttamalla; siirrä nuolinäppäimillä.</footer>
+<footer>Tavoite: liu'uta punainen auto ulos oikeasta reunasta. Valitse auto napauttamalla ja siirrä.</footer>
 <script>
   if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
@@ -785,7 +785,7 @@ if (state.draggedVi !== i) return;
       else if (e.key === 'ArrowUp') tryMoveSelected('U');
       else if (e.key === 'ArrowDown') tryMoveSelected('D');
     });
-
+    levelSel.value = 'intermediate'; // Aseta oletustaso
     buildBoard();
     newPuzzle();
   </script>
