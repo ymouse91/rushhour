@@ -49,7 +49,7 @@ body{
   /* iOS/iPadOS PWA: poista avaussa näkyvä valkoinen alapalkki */
   min-height: 95dvh;
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
-
+  padding-top: 24px;
   background-clip: content-box;
   -webkit-text-size-adjust: 100%;
 }
@@ -201,6 +201,7 @@ footer{
   body {
     gap: 6px;
     padding: 6px;
+	padding-top: calc(6px + env(safe-area-inset-top));
     padding-bottom: calc(6px + env(safe-area-inset-bottom));
   }
   
