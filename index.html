@@ -246,6 +246,8 @@ footer{
     padding: 0 2px;
   }
 }
+
+
 </style>
 
 </head>
@@ -817,7 +819,7 @@ onmessage = (e)=>{
           buildBoard();
           placeVehicles(state.vehicles);
           refreshHUD();
-          setTimeout(stepOnce, 120);
+          setTimeout(stepOnce, 400);
         };
         stepOnce();
       });
