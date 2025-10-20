@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fi">
 <head>
 <meta charset="utf-8"/>
@@ -575,23 +576,22 @@ onmessage = (e)=>{
           placeVehicles(state.vehicles);
         });
 
-        // === POINTERDOWN: merkitään raahaus alkaneeksi, nollataan hasMoved ===
         el.addEventListener('pointerdown', (e) => {
-          state.draggedVi = i;
-          state.dragStartPos = {x: e.clientX, y: e.clientY};
-          state.selected = i;
-          state.hasMoved = false; // <-- UUSI: lasketaan siirto vasta pointerupissa jos liikuttiin
-          placeVehicles(state.vehicles);
+  state.draggedVi = i;
+  state.dragStartPos = {x: e.clientX, y: e.clientY};
+  state.selected = i;
+  placeVehicles(state.vehicles);
 
-          // Safe pointer capture for iOS/Safari PWA
-          if (typeof el.setPointerCapture === 'function' && e && e.pointerId !== undefined) {
-            try { el.setPointerCapture(e.pointerId); } catch (err) {}
-          }
-        });
+  // Safe pointer capture for iOS/Safari PWA
+  if (typeof el.setPointerCapture === 'function' && e && e.pointerId !== undefined) {
+    try { el.setPointerCapture(e.pointerId); } catch (err) {
+      
+    }
+  }
+});
 
-        // === POINTERMOVE: liikutetaan autoa ruutu kerrallaan, EI kasvateta laskuria ===
         el.addEventListener('pointermove', (e) => {
-          if (state.draggedVi !== i) return;
+if (state.draggedVi !== i) return;
           const dx = e.clientX - state.dragStartPos.x;
           const dy = e.clientY - state.dragStartPos.y;
           const v = state.vehicles[i];
@@ -605,42 +605,38 @@ onmessage = (e)=>{
             const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
             if (moves.steps.includes(delta)) {
               state.vehicles = applyStep(state.vehicles, i, delta);
-              state.hasMoved = true;                // <-- merkkaa että raahauksen aikana liikuttiin
+              state.moves++;
               state.dragStartPos.x = e.clientX;
               placeVehicles(state.vehicles);
-              refreshHUD();                         // näyttää laskurin, mutta se ei kasva vielä
-              // Ei ratkaisutarkistusta tässä; tehdään pointerupissa
+              refreshHUD();
+              if (isSolved(state.vehicles)) {
+                setTimeout(() => alert(`Ratkaistu! Siirrot: ${state.moves} (minimi ${state.minMoves})`), 20);
+              }
             }
           } else if (Math.abs(dy) > thresh && Math.abs(dy) > Math.abs(dx) && v.dir === 'V') {
             const delta = dy > 0 ? 1 : -1;
             const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
             if (moves.steps.includes(delta)) {
               state.vehicles = applyStep(state.vehicles, i, delta);
-              state.hasMoved = true;                // <-- merkkaa että raahauksen aikana liikuttiin
+              state.moves++;
               state.dragStartPos.y = e.clientY;
               placeVehicles(state.vehicles);
-              refreshHUD();
-              // Ei ratkaisutarkistusta tässä; tehdään pointerupissa
-            }
-          }
-        }, {passive:false});
-
-        // === POINTERUP: jos liikuttiin, lasketaan 1 siirto ja tarkistetaan ratkaisu ===
-        el.addEventListener('pointerup', (e) => {
-          if (state.draggedVi === i) {
-            if (state.hasMoved) {
-              state.moves++;        // <-- yksi todellinen raahaus
               refreshHUD();
               if (isSolved(state.vehicles)) {
                 setTimeout(() => alert(`Ratkaistu! Siirrot: ${state.moves} (minimi ${state.minMoves})`), 20);
               }
             }
-            state.draggedVi = null;
           }
-          if (typeof el.releasePointerCapture === 'function' && e && e.pointerId !== undefined) {
-            try { el.releasePointerCapture(e.pointerId); } catch (_) {}
-          }
-        });
+        }, {passive:false});
+
+        el.addEventListener('pointerup', (e) => {
+  if (state.draggedVi === i) {
+    state.draggedVi = null;
+  }
+  if (typeof el.releasePointerCapture === 'function' && e && e.pointerId !== undefined) {
+    try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+  }
+});
 
         boardEl.appendChild(el);
       }
@@ -667,7 +663,7 @@ onmessage = (e)=>{
 
       if (delta !== 0 && moves.steps.includes(delta)) {
         state.vehicles = applyStep(state.vehicles, i, delta);
-        state.moves++; // näppäimistön/napin "askel" = 1 siirto
+        state.moves++;
         placeVehicles(state.vehicles);
         refreshHUD();
         if (isSolved(state.vehicles)) {
@@ -770,7 +766,7 @@ onmessage = (e)=>{
           if (i >= path.length) { state.playing = false; resolve(); return; }
           const mv = path[i++];
           state.vehicles = applyStep(state.vehicles, mv.vi, mv.delta);
-          state.moves++; // ratkaisu-esityksessä lasketaan edelleen askeleita; tarvittaessa voidaan ryhmitellä
+          state.moves++;
           buildBoard();
           placeVehicles(state.vehicles);
           refreshHUD();

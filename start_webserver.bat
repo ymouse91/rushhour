@@ -7,7 +7,7 @@ echo Your local IP addresses:
 ipconfig | findstr /i "IPv4"
 
 REM Käynnistä Pythonin HTTP-palvelin portissa 8004
-echo Starting Python HTTP server at port 8004...
+echo Starting Python HTTP server for Rush Hour at port 8004...
 python -m http.server 8004 --bind 0.0.0.0
 
 pause

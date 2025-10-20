@@ -1,5 +1,5 @@
 {
-  "name": "Rush Hour PWA",
+  "name": "Rush Hour",
   "short_name": "RushHour",
   "start_url": "./index.html",
   "display": "standalone",
