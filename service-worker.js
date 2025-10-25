@@ -3,8 +3,7 @@ const ASSETS = [
   './',
   './index.html',
   './rushx.txt',
-  './manifest.webmanifest'
-  // lisää myös ikonisi kun lisäät ne:
+  './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
 ];
