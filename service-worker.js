@@ -1,4 +1,4 @@
-const CACHE = 'rushhour3-v55';
+const CACHE = 'rushhour3-v56';
 const ASSETS = [
   './',
   './index.html',

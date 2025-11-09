@@ -253,7 +253,8 @@ footer{
 </head>
 <body>
 <header>
-<h1>🚗 Rush Hour</h1>
+
+<h1 id="title">🚗 Rush Hour</h1>
 <div class="hud">
 <label class="pill">Taso
         <select id="level">
@@ -905,5 +906,39 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
-</script></body>
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+  #qrOverlay{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.6);z-index:999;
+  }
+  #qrBox{
+    background:#fff;padding:16px 20px;border-radius:12px;text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
+  }
+  #qrBox canvas{width:180px;height:180px;}
+  #qrBox p{margin:8px 0 0;font-size:14px;color:#222;}
+</style>
+
+<div id="qrOverlay">
+  <div id="qrBox">
+    <canvas id="qr"></canvas>
+    <p>ymouse91.github.io/rushhour/</p>
+  </div>
+</div>
+
+<script>
+const qr = new QRious({
+  element: document.getElementById('qr'),
+  value: 'https://ymouse91.github.io/rushhour/',
+  size: 180
+});
+const overlay = document.getElementById('qrOverlay');
+const title = document.getElementById('title');
+title.addEventListener('click', ()=>overlay.style.display='flex');
+overlay.addEventListener('click', ()=>overlay.style.display='none');
+</script>
+
+</body>
 </html>
