@@ -884,6 +884,10 @@ onmessage = (e)=>{
       let cell = Math.floor(Math.min(cellFromWidth, cellFromHeight));
       cell = Math.max(34, Math.min(cell, 88));
       root.style.setProperty('--cell', cell + 'px');
+	  if (boardEl && boardEl.children.length) {
+        buildBoard();
+        placeVehicles(state.vehicles);
+      }
     }catch(e){
       // silent
     }
@@ -895,7 +899,8 @@ onmessage = (e)=>{
     window.visualViewport.addEventListener('scroll', fitBoardToViewport);
   }
   window.addEventListener('DOMContentLoaded', fitBoardToViewport);
-  window.addEventListener('load', fitBoardToViewport);
+  window.addEventListener('load', ()=>{
+  requestAnimationFrame(()=>requestAnimationFrame(fitBoardToViewport)); });
 })();
 
 // === Service Worker registration (ADDED) ===
