@@ -829,6 +829,7 @@ onmessage = (e)=>{
     btnNew.addEventListener('click', () => newPuzzle());
     btnReset.addEventListener('click', resetPuzzle);
     btnSolve.addEventListener('click', showSolution);
+	levelSel.addEventListener('change', () => newPuzzle());
     document.getElementById('left').addEventListener('click', () => tryMoveSelected('L'));
     document.getElementById('right').addEventListener('click', () => tryMoveSelected('R'));
     document.getElementById('up').addEventListener('click', () => tryMoveSelected('U'));
