@@ -10,10 +10,9 @@
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <style>
-/* ============== TOKENS ============== */
 :root{
-  --cell-base: 68px;     /* entinen "cell" peruskoko */
-  --scale: 1;            /* oletus: ei skaalausta */
+  --cell-base: 68px;
+  --scale: 1;
   --cell: calc(var(--cell-base) * var(--scale));
   --gap: 8px;
   --bg: #0f172a;
@@ -25,10 +24,9 @@
   --text-dim: #cbd5e1;
 }
 
-/* ============== BASE ============== */
 *{ box-sizing: border-box; }
-html, body{ height: 100%;   background-color: #1a1f3a;}
-html, body{ overflow-x: clip; } /* estä 1–2 px vaakavuoto */
+html, body{ height: 100%; background-color: #1a1f3a;}
+html, body{ overflow-x: clip; }
 
 body{
   margin: 0;
@@ -45,7 +43,6 @@ body{
   user-select: none;
   overflow-y: auto;
 
-  /* iOS/iPadOS PWA: poista avaussa näkyvä valkoinen alapalkki */
   min-height: 95dvh;
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
   padding-top: 24px;
@@ -53,7 +50,6 @@ body{
   -webkit-text-size-adjust: 100%;
 }
 
-/* ============== HEADER / HUD ============== */
 header{
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 8px;
@@ -86,7 +82,6 @@ select{
   font-size: .85rem;
 }
 
-/* ============== BOARD ============== */
 .boardWrap{
   width:100%;
   margin:0 auto;
@@ -110,7 +105,7 @@ select{
   border-radius: 16px;
   box-shadow: 0 25px 50px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1);
   backdrop-filter: blur(10px);
-  touch-action: none;      /* sallitaan oma drag-logiikka */
+  touch-action: none;
   overflow: visible;
   width: fit-content;
   max-width: calc(100vw - 16px);
@@ -123,7 +118,6 @@ select{
   flex-shrink: 0;
 }
 
-/* Exit-kolmio */
 .exit{
   position: absolute;
   top: calc(var(--gap) + 2.05*var(--cell) + var(--gap));
@@ -136,7 +130,6 @@ select{
   pointer-events: none;
 }
 
-/* ============== VEHICLES ============== */
 .veh{
   position: absolute;
   border-radius: 10px;
@@ -158,7 +151,13 @@ select{
 .veh.car{   background: linear-gradient(135deg, var(--car),   #059669); }
 .veh.truck{ background: linear-gradient(135deg, var(--truck), #9333ea); }
 
-/* ============== BUTTONS ============== */
+/* Lukitus ratkaisun jälkeen */
+.board.locked .veh{
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.92;
+}
+
 button{
   font: inherit; padding: 8px 14px; border-radius: 10px;
   border: 1px solid rgba(100,116,139,.3);
@@ -172,7 +171,6 @@ button.primary{
   border-color: var(--accent);
   box-shadow: 0 4px 12px rgba(13,110,253,.3);
 }
-/* Reset = punainen, Ratkaise = keltainen */
 #reset{
   background: linear-gradient(135deg, var(--red), #dc2626);
   border-color: #dc2626; color:#000;
@@ -183,12 +181,9 @@ button.primary{
   border-color: #f59e0b; color:#111; text-shadow:none;
   box-shadow: 0 4px 12px rgba(245,158,11,.35);
 }
-#reset:hover, #solve:hover{ filter: brightness(1.05); }
 
-/* ============== ARROW KEYPAD (piilossa) ============== */
 .arrows{ display: none !important; }
 
-/* ============== FOOTER ============== */
 footer{
   text-align: center;
   font-size: .8rem;
@@ -197,7 +192,6 @@ footer{
   padding: 0 4px;
 }
 
-/* ============== MOBIILI OPTIMOINTI ============== */
 @media (max-width: 600px) {
   body {
     gap: 6px;
@@ -205,35 +199,28 @@ footer{
     padding-top: calc(6px + env(safe-area-inset-top));
     padding-bottom: calc(6px + env(safe-area-inset-bottom));
   }
-
   header { gap: 6px; }
-
   h1 { font-size: 1.1rem; }
-
   .pill {
     padding: 4px 8px;
     font-size: .8rem;
     gap: 4px;
     border-radius: 16px;
   }
-
   select {
     font-size: .8rem;
     padding: 2px 4px;
   }
-
   .board {
     padding: 6px;
     border-radius: 12px;
     gap: var(--gap);
   }
-
   button {
     padding: 7px 12px;
     font-size: .85rem;
     border-radius: 8px;
   }
-
   footer {
     font-size: .75rem;
     line-height: 1.2;
@@ -241,53 +228,55 @@ footer{
   }
 }
 </style>
-
 </head>
+
 <body>
 <header>
-
-<h1 id="title">🚗 Rush Hour</h1>
-<div class="hud">
-<label class="pill">Taso
-        <select id="level">
-<option value="beginner">Helppo</option>
-<option value="intermediate" selected>Tavallinen</option>
-<option value="advanced">Haastava</option>
-<option value="expert">Vaikea</option>
-</select>
-</label>
-<span class="pill">Siirrot: <b id="moves">0</b></span>
-<span class="pill">Minimi: <b id="min">–</b></span>
-</div>
+  <h1 id="title">🚗 Rush Hour</h1>
+  <div class="hud">
+    <label class="pill">Taso
+      <select id="level">
+        <option value="beginner">Helppo</option>
+        <option value="intermediate" selected>Tavallinen</option>
+        <option value="advanced">Haastava</option>
+        <option value="expert">Vaikea</option>
+      </select>
+    </label>
+    <span class="pill">Siirrot: <b id="moves">0</b></span>
+    <span class="pill">Minimi: <b id="min">–</b></span>
+  </div>
 </header>
+
 <div class="boardWrap">
-<div class="board" id="board"></div>
+  <div class="board" id="board"></div>
 </div>
+
 <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-<button class="primary" id="new">Uusi pulma</button>
-<button id="reset">Nollaa</button>
-<button id="solve">Ratkaise</button>
+  <button class="primary" id="new">Uusi pulma</button>
+  <button id="reset">Nollaa</button>
+  <button id="solve">Ratkaise</button>
 </div>
+
 <div style="display:flex; justify-content:center;">
-<div class="arrows">
-<button class="blank"></button>
-<button id="up">⬆</button>
-<button class="blank"></button>
-<button id="left">⬅</button>
-<button class="blank"></button>
-<button id="right">➡</button>
-<button class="blank"></button>
-<button id="down">⬇</button>
-<button class="blank"></button>
+  <div class="arrows">
+    <button class="blank"></button>
+    <button id="up">⬆</button>
+    <button class="blank"></button>
+    <button id="left">⬅</button>
+    <button class="blank"></button>
+    <button id="right">➡</button>
+    <button class="blank"></button>
+    <button id="down">⬇</button>
+    <button class="blank"></button>
+  </div>
 </div>
-</div>
+
 <footer>Tavoite: liu'uta punainen auto ulos oikeasta reunasta. Valitse auto napauttamalla ja siirrä.</footer>
 
 <script>
-  if('serviceWorker' in navigator){
+if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 }
-// PWA standalone detection helper (iOS-safe)
 function __isStandalonePWA(){
   try {
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
@@ -295,164 +284,176 @@ function __isStandalonePWA(){
   } catch(_) { return false; }
 }
 
-    const BOARD_N = 6;
-    const EXIT_ROW = 2;
-    const EXIT_COL = 5;
+const BOARD_N = 6;
+const EXIT_ROW = 2;
+const EXIT_COL = 5;
 
-    let RUSH_DB = null;
-    let RUSH_THRESH = null;
+let RUSH_DB = null;
+let RUSH_THRESH = null;
 
-    let state = {
-      vehicles: [],
-      moves: 0,
-      selected: 0,
-      startSnapshot: null,
-      minMoves: null,
-      solution: null,
-      playing: false,
+let state = {
+  vehicles: [],
+  moves: 0,
+  selected: 0,
 
-      // drag / ratkaisu liput
-      hasMoved: false,
-      markSolveOnRelease: false,
-      dragPointerId: null,
-      dragFinished: false
+  // startSnapshot voi olla mitä tahansa, mutta reset käyttää originalSnapshottia
+  startSnapshot: null,
+
+  // ===== TÄMÄ on "alkuperäinen pulma" (tiedostosta ladattu) =====
+  originalSnapshot: null,
+
+  minMoves: null,
+  solution: null,
+  playing: false,
+
+  hasMoved: false,
+  markSolveOnRelease: false,
+  dragPointerId: null,
+  dragFinished: false,
+
+  locked: false
+};
+
+const boardEl = document.getElementById('board');
+const movesEl = document.getElementById('moves');
+const minEl = document.getElementById('min');
+const levelSel = document.getElementById('level');
+const btnNew = document.getElementById('new');
+const btnReset = document.getElementById('reset');
+const btnSolve = document.getElementById('solve');
+
+function setLocked(on){
+  state.locked = !!on;
+  boardEl.classList.toggle('locked', state.locked);
+  btnSolve.disabled = state.locked;
+}
+
+async function loadRushDb() {
+  if (RUSH_DB) return RUSH_DB;
+  try {
+    const txt = await fetch('rushx.txt', {cache: 'no-store'}).then(r => r.text());
+    const lines = txt.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const rx = /^(\d+)\s+([A-Za-zox]{36})\s+(\d+)$/;
+    const arr = [];
+    for (const line of lines) {
+      const m = line.match(rx);
+      if (!m) continue;
+      const moves = parseInt(m[1], 10);
+      const board = m[2];
+      arr.push({moves, board});
+    }
+    if (!arr.length) throw new Error('No valid rows');
+    RUSH_DB = arr;
+
+    const vals = arr.map(o => o.moves).sort((a, b) => a - b);
+    const q = (p) => {
+      const idx = (vals.length - 1) * p;
+      const lo = Math.floor(idx), hi = Math.ceil(idx);
+      const w = idx - lo;
+      return (hi >= vals.length ? vals[lo] : vals[lo] * (1 - w) + vals[hi] * w);
     };
+    const q25 = Math.floor(q(0.25)), q50 = Math.floor(q(0.50)), q75 = Math.floor(q(0.75));
+    RUSH_THRESH = {
+      beginner: [vals[0], q25],
+      intermediate: [q25 + 1, q50],
+      advanced: [q50 + 1, q75],
+      expert: [q75 + 1, vals[vals.length - 1]]
+    };
+  } catch (err) {
+    console.warn('Failed to load rushx.txt:', err);
+    RUSH_DB = null;
+  }
+  return RUSH_DB;
+}
 
-    const boardEl = document.getElementById('board');
-    const movesEl = document.getElementById('moves');
-    const minEl = document.getElementById('min');
-    const levelSel = document.getElementById('level');
-    const btnNew = document.getElementById('new');
-    const btnReset = document.getElementById('reset');
-    const btnSolve = document.getElementById('solve');
+function vehiclesFromBoard(boardStr) {
+  const cells = {};
+  for (let i = 0; i < boardStr.length; i++) {
+    const ch = boardStr[i];
+    if (ch === 'o' || ch === 'x' || ch === '.') continue;
+    if (!cells[ch]) cells[ch] = [];
+    const r = Math.floor(i / BOARD_N);
+    const c = i % BOARD_N;
+    cells[ch].push([r, c]);
+  }
+  const vehs = [];
+  let letters = Object.keys(cells);
+  const ai = letters.indexOf('A');
+  if (ai > 0) { letters.splice(ai, 1); letters.unshift('A'); }
+  for (const ch of letters) {
+    const pts = cells[ch];
+    let dir = 'H';
+    if (pts.length >= 2) {
+      const sameRow = pts.some((p, i) => pts.some((q, j) => i !== j && p[0] === q[0]));
+      dir = sameRow ? 'H' : 'V';
+    }
+    const rs = pts.map(p => p[0]), cs = pts.map(p => p[1]);
+    const minr = Math.min(...rs), minc = Math.min(...cs);
+    const len = pts.length;
+    const kind = (ch === 'A') ? 'red' : (len === 3 ? 'truck' : 'car');
+    vehs.push({dir, r: minr, c: minc, len, kind});
+  }
+  return vehs;
+}
 
-    async function loadRushDb() {
-      if (RUSH_DB) return RUSH_DB;
-      try {
-        const txt = await fetch('rushx.txt', {cache: 'no-store'}).then(r => r.text());
-        const lines = txt.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-        const rx = /^(\d+)\s+([A-Za-zox]{36})\s+(\d+)$/;
-        const arr = [];
-        for (const line of lines) {
-          const m = line.match(rx);
-          if (!m) continue;
-          const moves = parseInt(m[1], 10);
-          const board = m[2];
-          arr.push({moves, board});
-        }
-        if (!arr.length) throw new Error('No valid rows');
-        RUSH_DB = arr;
+function rc2i(r, c) { return r * BOARD_N + c; }
+function cloneVehicles(vs) { return vs.map(v => ({...v})); }
+function emptyGrid() { return new Array(BOARD_N * BOARD_N).fill(-1); }
 
-        const vals = arr.map(o => o.moves).sort((a, b) => a - b);
-        const q = (p) => {
-          const idx = (vals.length - 1) * p;
-          const lo = Math.floor(idx), hi = Math.ceil(idx);
-          const w = idx - lo;
-          return (hi >= vals.length ? vals[lo] : vals[lo] * (1 - w) + vals[hi] * w);
-        };
-        const q25 = Math.floor(q(0.25)), q50 = Math.floor(q(0.50)), q75 = Math.floor(q(0.75));
-        RUSH_THRESH = {
-          beginner: [vals[0], q25],
-          intermediate: [q25 + 1, q50],
-          advanced: [q50 + 1, q75],
-          expert: [q75 + 1, vals[vals.length - 1]]
-        };
-        console.log('Rush DB loaded:', arr.length, 'rows');
-      } catch (err) {
-        console.warn('Failed to load rushx.txt:', err);
-        RUSH_DB = null;
+function paintGrid(vs) {
+  const g = emptyGrid();
+  for (let i = 0; i < vs.length; i++) {
+    const v = vs[i];
+    if (v.dir === 'H') {
+      for (let x = 0; x < v.len; x++) {
+        const c = v.c + x;
+        if (c >= 0 && c < BOARD_N) g[rc2i(v.r, c)] = i;
       }
-      return RUSH_DB;
-    }
-
-    function vehiclesFromBoard(boardStr) {
-      const cells = {};
-      for (let i = 0; i < boardStr.length; i++) {
-        const ch = boardStr[i];
-        if (ch === 'o' || ch === 'x' || ch === '.') continue;
-        if (!cells[ch]) cells[ch] = [];
-        const r = Math.floor(i / BOARD_N);
-        const c = i % BOARD_N;
-        cells[ch].push([r, c]);
+    } else {
+      for (let x = 0; x < v.len; x++) {
+        const r = v.r + x;
+        if (r >= 0 && r < BOARD_N) g[rc2i(r, v.c)] = i;
       }
-      const vehs = [];
-      let letters = Object.keys(cells);
-      const ai = letters.indexOf('A');
-      if (ai > 0) { letters.splice(ai, 1); letters.unshift('A'); }
-      for (const ch of letters) {
-        const pts = cells[ch];
-        let dir = 'H';
-        if (pts.length >= 2) {
-          const sameRow = pts.some((p, i) => pts.some((q, j) => i !== j && p[0] === q[0]));
-          dir = sameRow ? 'H' : 'V';
-        }
-        const rs = pts.map(p => p[0]), cs = pts.map(p => p[1]);
-        const minr = Math.min(...rs), minc = Math.min(...cs);
-        const len = pts.length;
-        const kind = (ch === 'A') ? 'red' : (len === 3 ? 'truck' : 'car');
-        vehs.push({dir, r: minr, c: minc, len, kind});
-      }
-      return vehs;
     }
+  }
+  return g;
+}
 
-    function rc2i(r, c) { return r * BOARD_N + c; }
-    function cloneVehicles(vs) { return vs.map(v => ({...v})); }
-    function emptyGrid() { return new Array(BOARD_N * BOARD_N).fill(-1); }
+function isSolved(vs) {
+  const red = vs[0];
+  return red.dir === 'H' && red.r === EXIT_ROW && (red.c + red.len - 1) === EXIT_COL;
+}
 
-    function paintGrid(vs) {
-      const g = emptyGrid();
-      for (let i = 0; i < vs.length; i++) {
-        const v = vs[i];
-        if (v.dir === 'H') {
-          for (let x = 0; x < v.len; x++) {
-            const c = v.c + x;
-            if (c >= 0 && c < BOARD_N) g[rc2i(v.r, c)] = i;
-          }
-        } else {
-          for (let x = 0; x < v.len; x++) {
-            const r = v.r + x;
-            if (r >= 0 && r < BOARD_N) g[rc2i(r, v.c)] = i;
-          }
-        }
-      }
-      return g;
+function legalMoves(vs) {
+  const grid = paintGrid(vs);
+  const out = [];
+  for (let vi = 0; vi < vs.length; vi++) {
+    const v = vs[vi], steps = [];
+    if (v.dir === 'H') {
+      let c = v.c - 1, d = -1;
+      while (c >= 0 && grid[rc2i(v.r, c)] === -1) { steps.push(d); c--; d--; }
+      c = v.c + v.len; d = 1;
+      while (c < BOARD_N && grid[rc2i(v.r, c)] === -1) { steps.push(d); c++; d++; }
+    } else {
+      let r = v.r - 1, d = -1;
+      while (r >= 0 && grid[rc2i(r, v.c)] === -1) { steps.push(d); r--; d--; }
+      r = v.r + v.len; d = 1;
+      while (r < BOARD_N && grid[rc2i(r, v.c)] === -1) { steps.push(d); r++; d++; }
     }
+    out.push({vi, steps});
+  }
+  return out;
+}
 
-    function isSolved(vs) {
-      const red = vs[0];
-      return red.dir === 'H' && red.r === EXIT_ROW && (red.c + red.len - 1) === EXIT_COL;
-    }
+function applyStep(vs, vi, delta) {
+  const nv = cloneVehicles(vs);
+  const v = nv[vi];
+  if (v.dir === 'H') v.c += delta;
+  else v.r += delta;
+  return nv;
+}
 
-    function legalMoves(vs) {
-      const grid = paintGrid(vs);
-      const out = [];
-      for (let vi = 0; vi < vs.length; vi++) {
-        const v = vs[vi], steps = [];
-        if (v.dir === 'H') {
-          let c = v.c - 1, d = -1;
-          while (c >= 0 && grid[rc2i(v.r, c)] === -1) { steps.push(d); c--; d--; }
-          c = v.c + v.len; d = 1;
-          while (c < BOARD_N && grid[rc2i(v.r, c)] === -1) { steps.push(d); c++; d++; }
-        } else {
-          let r = v.r - 1, d = -1;
-          while (r >= 0 && grid[rc2i(r, v.c)] === -1) { steps.push(d); r--; d--; }
-          r = v.r + v.len; d = 1;
-          while (r < BOARD_N && grid[rc2i(r, v.c)] === -1) { steps.push(d); r++; d++; }
-        }
-        out.push({vi, steps});
-      }
-      return out;
-    }
-
-    function applyStep(vs, vi, delta) {
-      const nv = cloneVehicles(vs);
-      const v = nv[vi];
-      if (v.dir === 'H') v.c += delta;
-      else v.r += delta;
-      return nv;
-    }
-
-    const workerCode = `
+const workerCode = `
 const BOARD_N=6, EXIT_ROW=2, EXIT_COL=5;
 function rc2i(r,c){return r*BOARD_N+c}
 function clone(vs){return vs.map(v=>({...v}))}
@@ -523,359 +524,368 @@ onmessage = (e)=>{
   postMessage({min:null, path:null});
 };
 `;
-    const solver = new Worker(URL.createObjectURL(new Blob([workerCode], {type:'text/javascript'})));
+const solver = new Worker(URL.createObjectURL(new Blob([workerCode], {type:'text/javascript'})));
 
-    function solveAsync(vs, depthCap=200) {
-      return new Promise(res => {
-        const onMsg = (e) => { solver.removeEventListener('message', onMsg); res(e.data); };
-        solver.addEventListener('message', onMsg);
-        solver.postMessage({vs, cap: depthCap});
-      });
-    }
+function solveAsync(vs, depthCap=200) {
+  return new Promise(res => {
+    const onMsg = (e) => { solver.removeEventListener('message', onMsg); res(e.data); };
+    solver.addEventListener('message', onMsg);
+    solver.postMessage({vs, cap: depthCap});
+  });
+}
 
-    function buildBoard() {
-      boardEl.innerHTML = '';
-      for (let i = 0; i < BOARD_N * BOARD_N; i++) {
-        const d = document.createElement('div');
-        d.className = 'cell';
-        boardEl.appendChild(d);
-      }
-      const exit = document.createElement('div');
-      exit.className = 'exit';
-      boardEl.appendChild(exit);
-    }
+function buildBoard() {
+  boardEl.innerHTML = '';
+  for (let i = 0; i < BOARD_N * BOARD_N; i++) {
+    const d = document.createElement('div');
+    d.className = 'cell';
+    boardEl.appendChild(d);
+  }
+  const exit = document.createElement('div');
+  exit.className = 'exit';
+  boardEl.appendChild(exit);
+}
 
-    function placeVehicles(vs) {
-      boardEl.querySelectorAll('.veh').forEach(e => e.remove());
-      const root = getComputedStyle(document.documentElement);
-      const cell = parseFloat(root.getPropertyValue('--cell')) || 68;
-      const gap = parseFloat(root.getPropertyValue('--gap')) || 8;
-      const pad = 8;
+function placeVehicles(vs) {
+  boardEl.querySelectorAll('.veh').forEach(e => e.remove());
+  const root = getComputedStyle(document.documentElement);
+  const cell = parseFloat(root.getPropertyValue('--cell')) || 68;
+  const gap = parseFloat(root.getPropertyValue('--gap')) || 8;
+  const pad = 8;
 
-      for (let i = 0; i < vs.length; i++) {
-        const v = vs[i];
-        const el = document.createElement('div');
-        el.className = `veh ${v.kind}`;
-        if (i === state.selected) el.classList.add('sel');
+  for (let i = 0; i < vs.length; i++) {
+    const v = vs[i];
+    const el = document.createElement('div');
+    el.className = `veh ${v.kind}`;
+    if (i === state.selected) el.classList.add('sel');
 
-        const w = (v.dir === 'H' ? v.len : 1) * cell + ((v.dir === 'H' ? v.len - 1 : 0) * gap);
-        const h = (v.dir === 'V' ? v.len : 1) * cell + ((v.dir === 'V' ? v.len - 1 : 0) * gap);
+    const w = (v.dir === 'H' ? v.len : 1) * cell + ((v.dir === 'H' ? v.len - 1 : 0) * gap);
+    const h = (v.dir === 'V' ? v.len : 1) * cell + ((v.dir === 'V' ? v.len - 1 : 0) * gap);
 
-        const x = pad + v.c * (cell + gap);
-        const y = pad + v.r * (cell + gap);
+    const x = pad + v.c * (cell + gap);
+    const y = pad + v.r * (cell + gap);
 
-        el.style.width = w + 'px';
-        el.style.height = h + 'px';
-        el.style.transform = `translate(${x}px,${y}px)`;
-        el.textContent = (i === 0 ? 'R' : String(i));
-        el.dataset.vi = i;
-        el.dataset.startX = x;
-        el.dataset.startY = y;
+    el.style.width = w + 'px';
+    el.style.height = h + 'px';
+    el.style.transform = `translate(${x}px,${y}px)`;
+    el.textContent = (i === 0 ? 'R' : String(i));
+    el.dataset.vi = i;
 
-        el.addEventListener('click', () => {
-          state.selected = i;
-          placeVehicles(state.vehicles);
-        });
+    el.addEventListener('click', () => {
+      if (state.locked || state.playing) return;
+      state.selected = i;
+      placeVehicles(state.vehicles);
+    });
 
-        // ===== HELPER: päätä raahaus turvallisesti (välttää tuplalaskun) =====
-        const finishDrag = () => {
-          if (state.dragFinished) return;       // estä tuplatriggerit
-          state.dragFinished = true;
-          if (state.hasMoved) {
-            state.moves++;                      // yksi todellinen raahaus
-            refreshHUD();
-          }
-          const solved = state.markSolveOnRelease || isSolved(state.vehicles);
-          if (solved) {
-            setTimeout(() => alert(`Ratkaistu! Siirrot: ${state.moves} (minimi ${state.minMoves})`), 20);
-          }
-          state.draggedVi = null;
-          state.dragPointerId = null;
-          state.hasMoved = false;
-          state.markSolveOnRelease = false;
-        };
+    const finishDrag = () => {
+      if (state.dragFinished) return;
+      state.dragFinished = true;
 
-        // ===== POINTERDOWN: raahaus alkaa =====
-        el.addEventListener('pointerdown', (e) => {
-          state.draggedVi = i;
-          state.dragPointerId = e.pointerId ?? null;
-          state.dragStartPos = {x: e.clientX, y: e.clientY};
-          state.selected = i;
-          state.hasMoved = false;
-          state.markSolveOnRelease = false;
-          state.dragFinished = false;
-          placeVehicles(state.vehicles);
-
-          // Safe pointer capture for iOS/Safari PWA
-          if (typeof el.setPointerCapture === 'function' && e && e.pointerId !== undefined) {
-            try { el.setPointerCapture(e.pointerId); } catch (err) {}
-          }
-
-          // VARMISTUS: kuuntele myös ikkunatasolla, jos pointerup osuu elementin ulkopuolelle
-          const onWinUp = (ev) => {
-            // jos tunniste tiedossa, varmistetaan sama osoitin
-            if (state.draggedVi === i && (state.dragPointerId == null || ev.pointerId === state.dragPointerId)) {
-              finishDrag();
-              window.removeEventListener('pointerup', onWinUp, true);
-              window.removeEventListener('pointercancel', onWinUp, true);
-            }
-          };
-          window.addEventListener('pointerup', onWinUp, true);
-          window.addEventListener('pointercancel', onWinUp, true);
-        });
-
-        // ===== POINTERMOVE: liikutetaan ruutu kerrallaan, tarkistetaan maali joka askeleella =====
-        el.addEventListener('pointermove', (e) => {
-          if (state.draggedVi !== i) return;
-          // Estä selaimen eleet (varsinkin iOS:ssa nopeissa vedoissa)
-          if (e.cancelable) e.preventDefault();
-
-          const dx = e.clientX - state.dragStartPos.x;
-          const dy = e.clientY - state.dragStartPos.y;
-          const v = state.vehicles[i];
-          const cellSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 68;
-          const gapSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
-          const stepSize = cellSize + gapSize;
-          const thresh = stepSize * 0.3;
-
-          if (Math.abs(dx) > thresh && Math.abs(dx) > Math.abs(dy) && v.dir === 'H') {
-            const delta = dx > 0 ? 1 : -1;
-            const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
-            if (moves.steps.includes(delta)) {
-              state.vehicles = applyStep(state.vehicles, i, delta);
-              state.hasMoved = true;
-              state.dragStartPos.x = e.clientX;
-              placeVehicles(state.vehicles);
-              refreshHUD();
-              if (isSolved(state.vehicles)) state.markSolveOnRelease = true;
-            }
-          } else if (Math.abs(dy) > thresh && Math.abs(dy) > Math.abs(dx) && v.dir === 'V') {
-            const delta = dy > 0 ? 1 : -1;
-            const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
-            if (moves.steps.includes(delta)) {
-              state.vehicles = applyStep(state.vehicles, i, delta);
-              state.hasMoved = true;
-              state.dragStartPos.y = e.clientY;
-              placeVehicles(state.vehicles);
-              refreshHUD();
-              if (isSolved(state.vehicles)) state.markSolveOnRelease = true;
-            }
-          }
-        }, {passive:false});
-
-        // ===== POINTERUP: normaali päätös =====
-        el.addEventListener('pointerup', (e) => {
-          if (state.draggedVi === i) {
-            finishDrag();
-          }
-          if (typeof el.releasePointerCapture === 'function' && e && e.pointerId !== undefined) {
-            try { el.releasePointerCapture(e.pointerId); } catch (_) {}
-          }
-        });
-
-        // ===== POINTERCANCEL / LOST CAPTURE: käsittele kuin pointerup =====
-        el.addEventListener('pointercancel', () => { if (state.draggedVi === i) finishDrag(); });
-        el.addEventListener('lostpointercapture', () => { if (state.draggedVi === i) finishDrag(); });
-
-        boardEl.appendChild(el);
-      }
-    }
-
-    function refreshHUD() {
-      movesEl.textContent = state.moves | 0;
-      minEl.textContent = (state.minMoves == null ? '–' : state.minMoves);
-    }
-
-    function tryMoveSelected(dir) {
-      if (state.playing) return;
-      const i = state.selected | 0;
-      const v = state.vehicles[i];
-      if (!v) return;
-
-      const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
-      let delta = 0;
-
-      if (dir === 'L' && v.dir === 'H') delta = -1;
-      else if (dir === 'R' && v.dir === 'H') delta = 1;
-      else if (dir === 'U' && v.dir === 'V') delta = -1;
-      else if (dir === 'D' && v.dir === 'V') delta = 1;
-
-      if (delta !== 0 && moves.steps.includes(delta)) {
-        state.vehicles = applyStep(state.vehicles, i, delta);
-        state.moves++; // näppäimistön/napin askel = 1 siirto
-        placeVehicles(state.vehicles);
+      if (state.hasMoved) {
+        state.moves++;
         refreshHUD();
-        if (isSolved(state.vehicles)) {
-          setTimeout(() => alert(`Ratkaistu! Siirrot: ${state.moves} (minimi ${state.minMoves})`), 20);
+      }
+      const solved = state.markSolveOnRelease || isSolved(state.vehicles);
+      if (solved) {
+        setTimeout(() => alert(`Ratkaistu! Siirrot: ${state.moves} (minimi ${state.minMoves})`), 20);
+      }
+      state.draggedVi = null;
+      state.dragPointerId = null;
+      state.hasMoved = false;
+      state.markSolveOnRelease = false;
+    };
+
+    el.addEventListener('pointerdown', (e) => {
+      if (state.locked || state.playing) return;
+
+      state.draggedVi = i;
+      state.dragPointerId = e.pointerId ?? null;
+      state.dragStartPos = {x: e.clientX, y: e.clientY};
+      state.selected = i;
+      state.hasMoved = false;
+      state.markSolveOnRelease = false;
+      state.dragFinished = false;
+      placeVehicles(state.vehicles);
+
+      if (typeof el.setPointerCapture === 'function' && e && e.pointerId !== undefined) {
+        try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      const onWinUp = (ev) => {
+        if (state.draggedVi === i && (state.dragPointerId == null || ev.pointerId === state.dragPointerId)) {
+          finishDrag();
+          window.removeEventListener('pointerup', onWinUp, true);
+          window.removeEventListener('pointercancel', onWinUp, true);
+        }
+      };
+      window.addEventListener('pointerup', onWinUp, true);
+      window.addEventListener('pointercancel', onWinUp, true);
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (state.draggedVi !== i) return;
+      if (state.locked || state.playing) return;
+      if (e.cancelable) e.preventDefault();
+
+      const dx = e.clientX - state.dragStartPos.x;
+      const dy = e.clientY - state.dragStartPos.y;
+      const v = state.vehicles[i];
+      const cellSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 68;
+      const gapSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
+      const stepSize = cellSize + gapSize;
+      const thresh = stepSize * 0.3;
+
+      if (Math.abs(dx) > thresh && Math.abs(dx) > Math.abs(dy) && v.dir === 'H') {
+        const delta = dx > 0 ? 1 : -1;
+        const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
+        if (moves.steps.includes(delta)) {
+          state.vehicles = applyStep(state.vehicles, i, delta);
+          state.hasMoved = true;
+          state.dragStartPos.x = e.clientX;
+          placeVehicles(state.vehicles);
+          refreshHUD();
+          if (isSolved(state.vehicles)) state.markSolveOnRelease = true;
+        }
+      } else if (Math.abs(dy) > thresh && Math.abs(dy) > Math.abs(dx) && v.dir === 'V') {
+        const delta = dy > 0 ? 1 : -1;
+        const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
+        if (moves.steps.includes(delta)) {
+          state.vehicles = applyStep(state.vehicles, i, delta);
+          state.hasMoved = true;
+          state.dragStartPos.y = e.clientY;
+          placeVehicles(state.vehicles);
+          refreshHUD();
+          if (isSolved(state.vehicles)) state.markSolveOnRelease = true;
         }
       }
-    }
+    }, {passive:false});
 
-    async function generatePuzzleChecked(level) {
-      await loadRushDb();
-
-      const FIXED = {
-        beginner: [5, 9],
-        intermediate: [10, 13],
-        advanced: [14, 19],
-        expert: [20, 51]
-      };
-      const [lo, hi] = FIXED[level] || FIXED.beginner;
-
-      if (RUSH_DB && RUSH_DB.length && RUSH_THRESH) {
-        const pool = RUSH_DB.filter(p => p.moves >= lo && p.moves <= hi);
-        const base = pool.length ? pool : RUSH_DB;
-        const pick = base[(Math.random() * base.length) | 0];
-
-        const vs = vehiclesFromBoard(pick.board);
-        const redIdx = vs.findIndex(v => v.kind === 'red');
-        if (redIdx > 0) { const red = vs.splice(redIdx, 1)[0]; vs.unshift(red); }
-
-        return {vehicles: vs, min: pick.moves, path: null};
+    el.addEventListener('pointerup', (e) => {
+      if (state.draggedVi === i) finishDrag();
+      if (typeof el.releasePointerCapture === 'function' && e && e.pointerId !== undefined) {
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
       }
-      return {vehicles: [{r: EXIT_ROW, c: 0, len: 2, dir: 'H', kind: 'red'}], min: '?', path: null};
+    });
+
+    el.addEventListener('pointercancel', () => { if (state.draggedVi === i) finishDrag(); });
+    el.addEventListener('lostpointercapture', () => { if (state.draggedVi === i) finishDrag(); });
+
+    boardEl.appendChild(el);
+  }
+}
+
+function refreshHUD() {
+  movesEl.textContent = state.moves | 0;
+  minEl.textContent = (state.minMoves == null ? '–' : state.minMoves);
+}
+
+function tryMoveSelected(dir) {
+  if (state.playing || state.locked) return;
+
+  const i = state.selected | 0;
+  const v = state.vehicles[i];
+  if (!v) return;
+
+  const moves = legalMoves(state.vehicles).find(m => m.vi === i) || {steps: []};
+  let delta = 0;
+
+  if (dir === 'L' && v.dir === 'H') delta = -1;
+  else if (dir === 'R' && v.dir === 'H') delta = 1;
+  else if (dir === 'U' && v.dir === 'V') delta = -1;
+  else if (dir === 'D' && v.dir === 'V') delta = 1;
+
+  if (delta !== 0 && moves.steps.includes(delta)) {
+    state.vehicles = applyStep(state.vehicles, i, delta);
+    state.moves++;
+    placeVehicles(state.vehicles);
+    refreshHUD();
+    if (isSolved(state.vehicles)) {
+      setTimeout(() => alert(`Ratkaistu! Siirrot: ${state.moves} (minimi ${state.minMoves})`), 20);
     }
+  }
+}
 
-    async function newPuzzle() {
-      const level = levelSel.value || 'beginner';
-      const res = await generatePuzzleChecked(level);
+async function generatePuzzleChecked(level) {
+  await loadRushDb();
 
-      state.vehicles = res.vehicles;
-      state.minMoves = res.min;
-      state.solution = res.path;
-      state.moves = 0;
-      state.selected = 0;
-      state.startSnapshot = cloneVehicles(state.vehicles);
+  const FIXED = {
+    beginner: [5, 9],
+    intermediate: [10, 13],
+    advanced: [14, 19],
+    expert: [20, 51]
+  };
+  const [lo, hi] = FIXED[level] || FIXED.beginner;
+
+  if (RUSH_DB && RUSH_DB.length && RUSH_THRESH) {
+    const pool = RUSH_DB.filter(p => p.moves >= lo && p.moves <= hi);
+    const base = pool.length ? pool : RUSH_DB;
+    const pick = base[(Math.random() * base.length) | 0];
+
+    const vs = vehiclesFromBoard(pick.board);
+    const redIdx = vs.findIndex(v => v.kind === 'red');
+    if (redIdx > 0) { const red = vs.splice(redIdx, 1)[0]; vs.unshift(red); }
+
+    return {vehicles: vs, min: pick.moves, path: null};
+  }
+  return {vehicles: [{r: EXIT_ROW, c: 0, len: 2, dir: 'H', kind: 'red'}], min: '?', path: null};
+}
+
+async function newPuzzle() {
+  setLocked(false);
+
+  const level = levelSel.value || 'beginner';
+  const res = await generatePuzzleChecked(level);
+
+  state.vehicles = res.vehicles;
+  state.minMoves = res.min;
+  state.solution = res.path;
+  state.moves = 0;
+  state.selected = 0;
+
+  // startSnapshot = pelin tämänhetkinen "alku", mutta reset käyttää originalSnapshotia
+  state.startSnapshot = cloneVehicles(state.vehicles);
+
+  // ===== tärkein: tallenna "alkuperäinen tiedostopulma" resettiä varten =====
+  state.originalSnapshot = cloneVehicles(state.vehicles);
+
+  buildBoard();
+  placeVehicles(state.vehicles);
+  refreshHUD();
+}
+
+function resetPuzzle() {
+  setLocked(false);
+
+  // ===== Nollaa palaa aina tiedostosta ladattuun alkuperäiseen pulmaan =====
+  const base = state.originalSnapshot || state.startSnapshot;
+  if (!base) return;
+
+  state.vehicles = cloneVehicles(base);
+  state.moves = 0;
+  state.selected = 0;
+  state.hasMoved = false;
+  state.markSolveOnRelease = false;
+  state.dragPointerId = null;
+  state.dragFinished = false;
+
+  placeVehicles(state.vehicles);
+  refreshHUD();
+}
+
+function prettyMove(vsBase, mv) {
+  const v = vsBase[mv.vi];
+  const arrow = v.dir === 'H' ? (mv.delta > 0 ? '→' : '←') : (mv.delta > 0 ? '↓' : '↑');
+  const steps = Math.abs(mv.delta);
+  const id = (mv.vi === 0 ? 'R' : String(mv.vi));
+  return `${id} ${arrow}${steps}`;
+}
+
+async function showSolution() {
+  if (state.locked) return;
+
+  const baseVs = cloneVehicles(state.vehicles);
+  const sameAsStart = JSON.stringify(state.vehicles) === JSON.stringify(state.startSnapshot || []);
+  let path = null, min = null;
+
+  if (sameAsStart && state.solution) {
+    path = state.solution;
+    min = state.minMoves;
+  } else {
+    const res = await solveAsync(baseVs, 220);
+    path = res.path;
+    min = res.min;
+  }
+
+  if (!path) {
+    alert('Ratkaisua ei löytynyt.');
+    return;
+  }
+
+  const lines = path.map(m => prettyMove(baseVs, m));
+  alert(`Minimi ${min} siirtoa:\n` + lines.join('\n'));
+
+  // Lukitse peli heti kun ratkaisu on näytetty
+  setLocked(true);
+
+  if (confirm('Toistetaanko ratkaisu laudalla?')) {
+    await playSolution(baseVs, path);
+  }
+}
+
+function playSolution(baseVs, path) {
+  return new Promise(async (resolve) => {
+    state.playing = true;
+    setLocked(true);
+
+    // Toisto alkaa siitä tilasta, josta ratkaisu laskettiin,
+    // MUTTA: EI KOSKETA originalSnapshottiin (reset pysyy "alkuperäinen pulma")
+    state.vehicles = cloneVehicles(baseVs);
+
+    state.moves = 0;
+    state.selected = 0;
+    state.hasMoved = false;
+    state.markSolveOnRelease = false;
+    state.dragPointerId = null;
+    state.dragFinished = false;
+
+    buildBoard();
+    placeVehicles(state.vehicles);
+    refreshHUD();
+
+    await new Promise(r => setTimeout(r, 60));
+
+    let i = 0;
+    const stepOnce = () => {
+      if (i >= path.length) {
+        state.playing = false;
+        resolve();
+        return;
+      }
+      const mv = path[i++];
+      state.vehicles = applyStep(state.vehicles, mv.vi, mv.delta);
+      state.moves++;
 
       buildBoard();
       placeVehicles(state.vehicles);
       refreshHUD();
-    }
 
-    function resetPuzzle() {
-      if (!state.startSnapshot) return;
-      state.vehicles = cloneVehicles(state.startSnapshot);
-      state.moves = 0;
-      state.selected = 0;
-      state.hasMoved = false;
-      state.markSolveOnRelease = false;
-      state.dragPointerId = null;
-      state.dragFinished = false;
-      placeVehicles(state.vehicles);
-      refreshHUD();
-    }
+      setTimeout(stepOnce, 400);
+    };
+    stepOnce();
+  });
+}
 
-    // ======= MUUTOS: prettyMove ottaa "ratkaisun lähtötilan" parametrina =======
-    function prettyMove(vsBase, mv) {
-      const v = vsBase[mv.vi];
-      const arrow = v.dir === 'H' ? (mv.delta > 0 ? '→' : '←') : (mv.delta > 0 ? '↓' : '↑');
-      const steps = Math.abs(mv.delta);
-      const id = (mv.vi === 0 ? 'R' : String(mv.vi));
-      return `${id} ${arrow}${steps}`;
-    }
+btnNew.addEventListener('click', () => newPuzzle());
+btnReset.addEventListener('click', resetPuzzle);
+btnSolve.addEventListener('click', showSolution);
 
-    // ======= MUUTOS: tallenna se lähtötila, josta ratkaisu lasketaan, ja käytä sitä toistossa =======
-    async function showSolution() {
-      const baseVs = cloneVehicles(state.vehicles); // <-- tärkein korjaus: tämänhetkinen lähtötila
-      const sameAsStart = JSON.stringify(state.vehicles) === JSON.stringify(state.startSnapshot || []);
+levelSel.addEventListener('change', () => newPuzzle());
+document.getElementById('left').addEventListener('click', () => tryMoveSelected('L'));
+document.getElementById('right').addEventListener('click', () => tryMoveSelected('R'));
+document.getElementById('up').addEventListener('click', () => tryMoveSelected('U'));
+document.getElementById('down').addEventListener('click', () => tryMoveSelected('D'));
 
-      let path = null, min = null;
+window.addEventListener('keydown', (e) => {
+  if (state.locked || state.playing) return;
+  if (e.key === 'ArrowLeft') tryMoveSelected('L');
+  else if (e.key === 'ArrowRight') tryMoveSelected('R');
+  else if (e.key === 'ArrowUp') tryMoveSelected('U');
+  else if (e.key === 'ArrowDown') tryMoveSelected('D');
+});
 
-      if (sameAsStart && state.solution) {
-        path = state.solution;
-        min = state.minMoves;
-      } else {
-        const res = await solveAsync(baseVs, 220);
-        path = res.path;
-        min = res.min;
-      }
-
-      if (!path) {
-        alert('Ratkaisua ei löytynyt.');
-        return;
-      }
-
-      const lines = path.map(m => prettyMove(baseVs, m));
-      alert(`Minimi ${min} siirtoa:\n` + lines.join('\n'));
-
-      if (confirm('Toistetaanko ratkaisu laudalla?')) {
-        await playSolution(baseVs, path);
-      }
-    }
-
-    // ======= MUUTOS: playSolution aloittaa siitä tilasta, josta ratkaisu laskettiin =======
-    function playSolution(baseVs, path) {
-      return new Promise(async (resolve) => {
-        state.playing = true;
-
-        // aseta juuri se lähtötila, jota solver käytti
-        state.vehicles = cloneVehicles(baseVs);
-        state.startSnapshot = cloneVehicles(baseVs);
-        state.moves = 0;
-        state.selected = 0;
-        state.hasMoved = false;
-        state.markSolveOnRelease = false;
-        state.dragPointerId = null;
-        state.dragFinished = false;
-
-        buildBoard();
-        placeVehicles(state.vehicles);
-        refreshHUD();
-
-        await new Promise(r => setTimeout(r, 60));
-
-        let i = 0;
-        const stepOnce = () => {
-          if (i >= path.length) {
-            state.playing = false;
-            resolve();
-            return;
-          }
-          const mv = path[i++];
-          state.vehicles = applyStep(state.vehicles, mv.vi, mv.delta);
-          state.moves++; // esityksessä lasketaan askeleita
-
-          // ei tarvitse buildBoard joka stepillä, mutta pidetään ennallaan jos haluat
-          buildBoard();
-          placeVehicles(state.vehicles);
-          refreshHUD();
-
-          setTimeout(stepOnce, 400);
-        };
-        stepOnce();
-      });
-    }
-
-    btnNew.addEventListener('click', () => newPuzzle());
-    btnReset.addEventListener('click', resetPuzzle);
-    btnSolve.addEventListener('click', showSolution);
-    levelSel.addEventListener('change', () => newPuzzle());
-    document.getElementById('left').addEventListener('click', () => tryMoveSelected('L'));
-    document.getElementById('right').addEventListener('click', () => tryMoveSelected('R'));
-    document.getElementById('up').addEventListener('click', () => tryMoveSelected('U'));
-    document.getElementById('down').addEventListener('click', () => tryMoveSelected('D'));
-
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') tryMoveSelected('L');
-      else if (e.key === 'ArrowRight') tryMoveSelected('R');
-      else if (e.key === 'ArrowUp') tryMoveSelected('U');
-      else if (e.key === 'ArrowDown') tryMoveSelected('D');
-    });
-
-    levelSel.value = 'intermediate'; // Aseta oletustaso
-    buildBoard();
-    newPuzzle();
+levelSel.value = 'intermediate';
+buildBoard();
+newPuzzle();
 </script>
 
 <script>
-// === iPhone PWA fit-to-viewport (ADDED) ===
+// iPhone PWA fit-to-viewport
 (function(){
   function fitBoardToViewport(){
     try{
       const vv = window.visualViewport;
       const wrap = document.querySelector('.boardWrap') || document.body;
       let vw = wrap.clientWidth;
-      // Vähennä ulostulonuolen tila (~30-40px riippuen cell-koosta)
       vw = Math.max(200, vw - 50);
       const vh = vv ? vv.height : window.innerHeight;
 
@@ -898,22 +908,20 @@ onmessage = (e)=>{
       const root = document.documentElement;
       const rs = getComputedStyle(root);
       const gap = parseFloat(rs.getPropertyValue('--gap')) || 8;
-      const pad = 12; // board inner padding
+      const pad = 12;
 
-      // 6x6 + 5 gaps + 2*pad
       const cellFromWidth  = (vw - 2*pad - 5*gap) / 6;
       const cellFromHeight = (vh - verticalChrome - 2*pad - 5*gap) / 6;
 
       let cell = Math.floor(Math.min(cellFromWidth, cellFromHeight));
       cell = Math.max(34, Math.min(cell, 88));
       root.style.setProperty('--cell', cell + 'px');
-      if (boardEl && boardEl.children.length) {
+
+      if (typeof buildBoard === 'function' && typeof placeVehicles === 'function' && state.vehicles) {
         buildBoard();
         placeVehicles(state.vehicles);
       }
-    }catch(e){
-      // silent
-    }
+    }catch(e){}
   }
 
   window.addEventListener('resize', fitBoardToViewport);
@@ -926,15 +934,6 @@ onmessage = (e)=>{
     requestAnimationFrame(()=>requestAnimationFrame(fitBoardToViewport));
   });
 })();
-
-// === Service Worker registration (ADDED) ===
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('sw.js').catch(function(e){
-      console && console.warn && console.warn('SW reg failed', e);
-    });
-  });
-}
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
