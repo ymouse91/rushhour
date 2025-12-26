@@ -53,6 +53,8 @@ body{
   -webkit-text-size-adjust: 100%;
 }
 
+
+
 /* ============== HEADER / HUD ============== */
 header{
   display: flex; align-items: center; justify-content: space-between;
@@ -87,12 +89,12 @@ select{
 }
 
 /* ============== BOARD ============== */
-.boardWrap{
-  width:100%;
-  margin:0 auto;
-  display:grid;
-  place-items:center;
-  align-self: start;
+.boardWrap{ 
+  width:100%; 
+  margin:0 auto; 
+  display:grid; 
+  place-items:center; 
+  align-self: start; 
   justify-self: center;
   min-height: 0;
   overflow: hidden;
@@ -103,7 +105,7 @@ select{
   grid-template-columns: repeat(6, var(--cell));
   grid-template-rows: repeat(6, var(--cell));
   gap: var(--gap);
-  padding: 8px;
+  padding: 8px; 
   margin: 0 auto;
   background: rgba(30,41,59,1);
   border: 1px solid rgba(100,116,139,.2);
@@ -202,44 +204,50 @@ footer{
   body {
     gap: 6px;
     padding: 6px;
-    padding-top: calc(6px + env(safe-area-inset-top));
+	padding-top: calc(6px + env(safe-area-inset-top));
     padding-bottom: calc(6px + env(safe-area-inset-bottom));
   }
-
-  header { gap: 6px; }
-
-  h1 { font-size: 1.1rem; }
-
+  
+  header {
+    gap: 6px;
+  }
+  
+  h1 {
+    font-size: 1.1rem;
+  }
+  
   .pill {
     padding: 4px 8px;
     font-size: .8rem;
     gap: 4px;
     border-radius: 16px;
   }
-
+  
   select {
     font-size: .8rem;
     padding: 2px 4px;
   }
-
+  
   .board {
     padding: 6px;
     border-radius: 12px;
     gap: var(--gap);
   }
-
+  
   button {
     padding: 7px 12px;
     font-size: .85rem;
     border-radius: 8px;
   }
-
+  
   footer {
     font-size: .75rem;
     line-height: 1.2;
     padding: 0 2px;
   }
 }
+
+
 </style>
 
 </head>
@@ -282,11 +290,10 @@ footer{
 </div>
 </div>
 <footer>Tavoite: liu'uta punainen auto ulos oikeasta reunasta. Valitse auto napauttamalla ja siirrä.</footer>
-
 <script>
   if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
-}
+}  
 // PWA standalone detection helper (iOS-safe)
 function __isStandalonePWA(){
   try {
@@ -524,7 +531,7 @@ onmessage = (e)=>{
 };
 `;
     const solver = new Worker(URL.createObjectURL(new Blob([workerCode], {type:'text/javascript'})));
-
+    
     function solveAsync(vs, depthCap=200) {
       return new Promise(res => {
         const onMsg = (e) => { solver.removeEventListener('message', onMsg); res(e.data); };
@@ -739,14 +746,14 @@ onmessage = (e)=>{
     async function newPuzzle() {
       const level = levelSel.value || 'beginner';
       const res = await generatePuzzleChecked(level);
-
+      
       state.vehicles = res.vehicles;
       state.minMoves = res.min;
       state.solution = res.path;
       state.moves = 0;
       state.selected = 0;
       state.startSnapshot = cloneVehicles(state.vehicles);
-
+      
       buildBoard();
       placeVehicles(state.vehicles);
       refreshHUD();
@@ -765,81 +772,54 @@ onmessage = (e)=>{
       refreshHUD();
     }
 
-    // ======= MUUTOS: prettyMove ottaa "ratkaisun lähtötilan" parametrina =======
-    function prettyMove(vsBase, mv) {
-      const v = vsBase[mv.vi];
+    function prettyMove(vs, mv) {
+      const v = vs[mv.vi];
       const arrow = v.dir === 'H' ? (mv.delta > 0 ? '→' : '←') : (mv.delta > 0 ? '↓' : '↑');
       const steps = Math.abs(mv.delta);
       const id = (mv.vi === 0 ? 'R' : String(mv.vi));
       return `${id} ${arrow}${steps}`;
     }
 
-    // ======= MUUTOS: tallenna se lähtötila, josta ratkaisu lasketaan, ja käytä sitä toistossa =======
     async function showSolution() {
-      const baseVs = cloneVehicles(state.vehicles); // <-- tärkein korjaus: tämänhetkinen lähtötila
-      const sameAsStart = JSON.stringify(state.vehicles) === JSON.stringify(state.startSnapshot || []);
-
+      const same = JSON.stringify(state.vehicles) === JSON.stringify(state.startSnapshot || []);
       let path = null, min = null;
-
-      if (sameAsStart && state.solution) {
+      
+      if (same && state.solution) {
         path = state.solution;
         min = state.minMoves;
       } else {
-        const res = await solveAsync(baseVs, 220);
+        const res = await solveAsync(state.vehicles, 220);
         path = res.path;
         min = res.min;
       }
-
+      
       if (!path) {
         alert('Ratkaisua ei löytynyt.');
         return;
       }
 
-      const lines = path.map(m => prettyMove(baseVs, m));
+      const lines = path.map(m => prettyMove(state.startSnapshot || state.vehicles, m));
       alert(`Minimi ${min} siirtoa:\n` + lines.join('\n'));
 
-      if (confirm('Toistetaanko ratkaisu laudalla?')) {
-        await playSolution(baseVs, path);
+      if (state.startSnapshot && confirm('Toistetaanko ratkaisu laudalla?')) {
+        await playSolution(path);
       }
     }
 
-    // ======= MUUTOS: playSolution aloittaa siitä tilasta, josta ratkaisu laskettiin =======
-    function playSolution(baseVs, path) {
+    function playSolution(path) {
       return new Promise(async (resolve) => {
         state.playing = true;
-
-        // aseta juuri se lähtötila, jota solver käytti
-        state.vehicles = cloneVehicles(baseVs);
-        state.startSnapshot = cloneVehicles(baseVs);
-        state.moves = 0;
-        state.selected = 0;
-        state.hasMoved = false;
-        state.markSolveOnRelease = false;
-        state.dragPointerId = null;
-        state.dragFinished = false;
-
-        buildBoard();
-        placeVehicles(state.vehicles);
-        refreshHUD();
-
+        resetPuzzle();
         await new Promise(r => setTimeout(r, 60));
-
         let i = 0;
         const stepOnce = () => {
-          if (i >= path.length) {
-            state.playing = false;
-            resolve();
-            return;
-          }
+          if (i >= path.length) { state.playing = false; resolve(); return; }
           const mv = path[i++];
           state.vehicles = applyStep(state.vehicles, mv.vi, mv.delta);
           state.moves++; // esityksessä lasketaan askeleita
-
-          // ei tarvitse buildBoard joka stepillä, mutta pidetään ennallaan jos haluat
           buildBoard();
           placeVehicles(state.vehicles);
           refreshHUD();
-
           setTimeout(stepOnce, 400);
         };
         stepOnce();
@@ -849,7 +829,7 @@ onmessage = (e)=>{
     btnNew.addEventListener('click', () => newPuzzle());
     btnReset.addEventListener('click', resetPuzzle);
     btnSolve.addEventListener('click', showSolution);
-    levelSel.addEventListener('change', () => newPuzzle());
+	levelSel.addEventListener('change', () => newPuzzle());
     document.getElementById('left').addEventListener('click', () => tryMoveSelected('L'));
     document.getElementById('right').addEventListener('click', () => tryMoveSelected('R'));
     document.getElementById('up').addEventListener('click', () => tryMoveSelected('U'));
@@ -861,12 +841,10 @@ onmessage = (e)=>{
       else if (e.key === 'ArrowUp') tryMoveSelected('U');
       else if (e.key === 'ArrowDown') tryMoveSelected('D');
     });
-
     levelSel.value = 'intermediate'; // Aseta oletustaso
     buildBoard();
     newPuzzle();
-</script>
-
+  </script>
 <script>
 // === iPhone PWA fit-to-viewport (ADDED) ===
 (function(){
@@ -875,7 +853,7 @@ onmessage = (e)=>{
       const vv = window.visualViewport;
       const wrap = document.querySelector('.boardWrap') || document.body;
       let vw = wrap.clientWidth;
-      // Vähennä ulostulonuolen tila (~30-40px riippuen cell-koosta)
+	  // Vähennä ulostulonuolen tila (~30-40px riippuen cell-koosta)
       vw = Math.max(200, vw - 50);
       const vh = vv ? vv.height : window.innerHeight;
 
@@ -907,7 +885,7 @@ onmessage = (e)=>{
       let cell = Math.floor(Math.min(cellFromWidth, cellFromHeight));
       cell = Math.max(34, Math.min(cell, 88));
       root.style.setProperty('--cell', cell + 'px');
-      if (boardEl && boardEl.children.length) {
+	  if (boardEl && boardEl.children.length) {
         buildBoard();
         placeVehicles(state.vehicles);
       }
@@ -923,8 +901,7 @@ onmessage = (e)=>{
   }
   window.addEventListener('DOMContentLoaded', fitBoardToViewport);
   window.addEventListener('load', ()=>{
-    requestAnimationFrame(()=>requestAnimationFrame(fitBoardToViewport));
-  });
+  requestAnimationFrame(()=>requestAnimationFrame(fitBoardToViewport)); });
 })();
 
 // === Service Worker registration (ADDED) ===
@@ -936,7 +913,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <style>
   #qrOverlay{
