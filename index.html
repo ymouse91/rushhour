@@ -855,9 +855,30 @@ function playSolution(baseVs, path) {
   });
 }
 
-btnNew.addEventListener('click', () => newPuzzle());
-btnReset.addEventListener('click', resetPuzzle);
-btnSolve.addEventListener('click', showSolution);
+// iOS: tee napeista 1-kosketuksella toimivat (touchend + click-guard)
+let __lastTouchTs = 0;
+function fastTap(el, fn){
+  el.addEventListener('touchend', (e) => {
+    __lastTouchTs = Date.now();
+    e.preventDefault();      // estää iOS:n "ensimmäinen tap = scroll stop"
+    fn();
+  }, { passive:false });
+
+  el.addEventListener('click', (e) => {
+    // jos touchend juuri tapahtui, ignoraa click (ettei tule tuplaa)
+    if (Date.now() - __lastTouchTs < 700) {
+      e.preventDefault();
+      return;
+    }
+    fn();
+  });
+}
+
+// käytä samoille napeille
+fastTap(btnSolve, showSolution);
+fastTap(btnReset, resetPuzzle);
+fastTap(btnNew, newPuzzle);
+
 
 levelSel.addEventListener('change', () => newPuzzle());
 document.getElementById('left').addEventListener('click', () => tryMoveSelected('L'));
